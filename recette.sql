@@ -102,19 +102,43 @@ ON i.id_ingredient = ri.id_ingredient
 WHERE i.price > 2
 )
 
--- exercice 16 // OK
+-- exercice 16
 SELECT recipe_name
 FROM recipe
 WHERE preparation_time = (
 SELECT MIN(preparation_time)
 FROM recipe)
 
--- exercice 17 // OK mais... recipe_ingredient, pas de création de ligne à la création d'une recette ou d'un ingrédient. Automatisation ?
-SELECT recipe_name
-FROM recipe
-INNER JOIN recipe_ingredients
-ON recipe_ingredients.id_recipe = recipe.id_recipe
-WHERE recipe_ingredients.id_ingredient IS NULL
+-- exercice 17
+SELECT r.recipe_name
+FROM recipe r
+LEFT JOIN recipe_ingredients ri ON r.id_recipe = ri.id_recipe
+WHERE ri.id_recipe IS NULL;
 
 -- exercice 18 
+SELECT i.ingredient_name, COUNT(ri.id_ingredient) AS nbIngredients 
+FROM ingredient i 
+INNER JOIN recipe_ingredients ri 
+ON i.id_ingredient = ri.id_ingredient 
+GROUP BY i.id_ingredient 
+HAVING nbIngredients >= 3
 
+-- exercice 19
+INSERT INTO recipe_ingredients (quatity, id_ingredient, id_recipe)
+VALUES ( 7, 8, 29);
+
+-- exercice 20
+SELECT sum(ri.quantity*i.price) AS cout, r.recipe_name
+FROM recipe_ingredients ri
+INNER JOIN ingredient i
+ON i.id_ingredient = ri.id_ingredient
+INNER JOIN recipe r
+ON r.id_recipe = ri.id_recipe
+GROUP BY ri.id_recipe
+HAVING cout >= ALL (
+	SELECT sum(ri.quantity*i.price)
+	FROM recipe_ingredients ri
+	INNER JOIN ingredient i
+	ON i.id_ingredient = ri.id_ingredient
+	GROUP BY ri.id_recipe
+	)
